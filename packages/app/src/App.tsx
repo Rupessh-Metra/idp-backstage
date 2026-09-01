@@ -8,6 +8,7 @@ import { navModule } from './modules/nav';
 import { homeModule } from './modules/home';
 import { githubEntityPageModule } from './components/catalog/EntityPage';
 import { githubActionsApiModule } from './apis';
+import { themeModule } from './theme/ThemeModule';
 
 const signInPageModule = createFrontendModule({
   pluginId: 'app',
@@ -40,5 +41,6 @@ export default createApp({
     signInPageModule,
     githubEntityPageModule,
     githubActionsApiModule,
+    themeModule,
   ],
 });

@@ -1,5 +1,5 @@
 app:
-  title: Scaffolded Backstage App
+  title: Ksquare IDP
   baseUrl: http://localhost:3000
 
   # Enable all packages by default, this will discover packages from packages/app/package.json
@@ -7,94 +7,52 @@ app:
 
   extensions:
     # Default landing page configuration.
-    # The catalog is mounted at /catalog by default but is overridden here to
-    # serve as the root page. To switch to the Home page, comment out the
-    # catalog path override and uncomment the home path override.
-    - page:catalog:
-        config:
-          path: /
-    # - page:home:
+    # The home page is the root page so it can introduce the portal and its
+    # purpose. The catalog is still one click away in the sidebar.
+    # - page:catalog:
     #     config:
     #       path: /
 
-    # Visit tracking records which pages users navigate to and is disabled by default.
-    # Enable it to populate the Most Visited and Recently Visited widgets on the Home page.
-    # Visit data is stored via UserSettings storage if available, otherwise browser localStorage.
-    # - api:home/visits: true
-    # - app-root-element:home/visit-listener: true
-    - home-page-widget:home/toolkit:
-        config:
-          tools:
-            - url: https://backstage.io/docs
-              label: Docs
-              icon: docs
-            - url: https://github.com/backstage/backstage
-              label: GitHub
-              icon: github
-            - url: https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md
-              label: Contributing
-              icon: docs
-            - url: https://backstage.io/plugins
-              label: Plugins Directory
-              icon: kind:component
-            - url: https://github.com/backstage/backstage/issues/new/choose
-              label: Submit New Issue
-              icon: github
-    - home-page-widget:home/world-clock:
-        config:
-          clockConfigs:
-            - label: NYC
-              timeZone: America/New_York
-            - label: UTC
-              timeZone: UTC
-            - label: STO
-              timeZone: Europe/Stockholm
-            - label: TYO
-              timeZone: Asia/Tokyo
+    # Replaced by the Ksquare IDP light/dark themes (see packages/app/src/theme).
+    - theme:app/light: false
+    - theme:app/dark: false
+
     - page:home:
         config:
+          path: /
           defaultConfig:
-            - component: HomePageSearchBar
+            - component: PortalHero
               column: 0
               row: 0
               width: 12
+              height: 3
+              deletable: false
+            - component: HomePageSearchBar
+              column: 0
+              row: 3
+              width: 12
               height: 2
               deletable: false
-            - component: GettingStarted
+            - component: QuickActions
               column: 0
-              row: 1
-              width: 4
-              height: 11
+              row: 5
+              width: 12
+              height: 4
             - component: HomePageStarredEntities
-              column: 4
-              row: 2
-              width: 4
-              height: 4
-            - component: HomePageRandomJoke
-              column: 8
-              row: 2
-              width: 4
-              height: 4
-            - component: HomePageToolkit
-              column: 4
-              row: 6
-              width: 4
-              height: 3
-            - component: HomePageWorldClock
-              column: 8
-              row: 6
-              width: 4
-              height: 3
-            - component: HomePageMostVisited
-              column: 4
+              column: 0
               row: 9
-              width: 4
-              height: 4
-            - component: HomePageRecentlyVisited
-              column: 8
+              width: 6
+              height: 6
+            - component: OwnedEntities
+              column: 6
               row: 9
-              width: 4
-              height: 4
+              width: 6
+              height: 6
+            - component: FeaturedTemplates
+              column: 0
+              row: 15
+              width: 12
+              height: 5
 
 organization:
   name: My Company
@@ -123,7 +81,8 @@ backend:
   # The production database configuration is stored in app-config.production.yaml
   database:
     client: better-sqlite3
-    connection: ':memory:'
+    connection:
+      directory: ./.data/db
   # see https://backstage.io/docs/ai/mcp-actions#actions-configuration for more details
   actions:
     pluginSources:
@@ -190,11 +149,6 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
-    # This app's own self-description, carries the github.com/project-slug
-    # annotation used by the GitHub Actions/Pull Requests/Insights entity tabs
-    - type: file
-      target: ../../catalog-info.yaml
-
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
@@ -216,6 +170,13 @@ catalog:
       target: ../../examples/github-org.yaml
       rules:
         - allow: [User, Group]
+
+    # Statically registered GitHub repos, loaded on every startup so they
+    # don't need to be re-added via the "Analyze" / Register Existing flow.
+    - type: url
+      target: https://github.com/Rupessh-Metra/idp-backstage/blob/main/catalog-info.yaml
+    - type: url
+      target: https://github.com/Rupessh-Metra/JavaWebCalculator/blob/master/catalog-info.yaml
 
     ## Uncomment these lines to add more example data
     # - type: url

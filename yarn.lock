@@ -1440,7 +1440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/catalog-model@npm:^1.10.0, @backstage/catalog-model@npm:^1.4.5, @backstage/catalog-model@npm:^1.7.5, @backstage/catalog-model@npm:^1.7.6, @backstage/catalog-model@npm:^1.9.0":
+"@backstage/catalog-model@npm:^1.10.0, @backstage/catalog-model@npm:^1.4.5, @backstage/catalog-model@npm:^1.7.5, @backstage/catalog-model@npm:^1.7.6, @backstage/catalog-model@npm:^1.7.7, @backstage/catalog-model@npm:^1.9.0":
   version: 1.10.0
   resolution: "@backstage/catalog-model@npm:1.10.0"
   dependencies:
@@ -2433,7 +2433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/integration@npm:^2.1.0, @backstage/integration@npm:^2.1.1":
+"@backstage/integration@npm:^2.0.0, @backstage/integration@npm:^2.1.0, @backstage/integration@npm:^2.1.1":
   version: 2.1.1
   resolution: "@backstage/integration@npm:2.1.1"
   dependencies:
@@ -3481,18 +3481,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/plugin-permission-backend-module-allow-all-policy@npm:^0.2.22":
-  version: 0.2.22
-  resolution: "@backstage/plugin-permission-backend-module-allow-all-policy@npm:0.2.22"
-  dependencies:
-    "@backstage/backend-plugin-api": "npm:^1.10.0"
-    "@backstage/plugin-auth-node": "npm:^0.7.4"
-    "@backstage/plugin-permission-common": "npm:^0.9.10"
-    "@backstage/plugin-permission-node": "npm:^0.11.3"
-  checksum: 10c0/db4d7c1dccc1e1261111e9d2b8773aa6d459547ec06ca6f18e0890d5380e2d9a82d52703caaea8e451cb3bccd5b8dd1240ee3c9b25c11bc97a4122f07c238a4b
-  languageName: node
-  linkType: hard
-
 "@backstage/plugin-permission-backend@npm:^0.7.15":
   version: 0.7.15
   resolution: "@backstage/plugin-permission-backend@npm:0.7.15"
@@ -3683,6 +3671,25 @@ __metadata:
     zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   checksum: 10c0/e09bd1952696c81c4a07cc4514b524de7633510042e1f09f28269f53d2d6142eb73410342649cedb810249f203f3654b7493fe28f1b52dbd95c61732d3aa96e6
+  languageName: node
+  linkType: hard
+
+"@backstage/plugin-scaffolder-common@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@backstage/plugin-scaffolder-common@npm:2.0.1"
+  dependencies:
+    "@backstage/catalog-model": "npm:^1.7.7"
+    "@backstage/errors": "npm:^1.2.7"
+    "@backstage/integration": "npm:^2.0.0"
+    "@backstage/plugin-permission-common": "npm:^0.9.7"
+    "@backstage/types": "npm:^1.2.2"
+    "@microsoft/fetch-event-source": "npm:^2.0.1"
+    "@types/json-schema": "npm:^7.0.9"
+    cross-fetch: "npm:^4.0.0"
+    json-schema: "npm:^0.4.0"
+    uri-template: "npm:^2.0.0"
+    zen-observable: "npm:^0.10.0"
+  checksum: 10c0/3382ca441fd4f8400b548c7d4a4cb1c31486396bef66bb0656bf9140af63983c5020f7cf5b215ae46626d9d9efb5de8d811d1386d57d4caad96b3dbe3b0ec3fc
   languageName: node
   linkType: hard
 
@@ -12953,6 +12960,7 @@ __metadata:
     "@backstage/plugin-techdocs": "npm:^1.18.0"
     "@backstage/plugin-techdocs-module-addons-contrib": "npm:^1.1.39"
     "@backstage/plugin-user-settings": "npm:^0.9.6"
+    "@backstage/theme": "npm:^0.7.3"
     "@backstage/ui": "npm:^0.17.1"
     "@material-ui/core": "npm:^4.12.2"
     "@material-ui/icons": "npm:^4.9.1"
@@ -13540,6 +13548,7 @@ __metadata:
   resolution: "backend@workspace:packages/backend"
   dependencies:
     "@backstage/backend-defaults": "npm:^0.17.7"
+    "@backstage/backend-plugin-api": "npm:^1.10.0"
     "@backstage/cli": "npm:^0.36.5"
     "@backstage/config": "npm:^1.3.8"
     "@backstage/plugin-app-backend": "npm:^0.5.17"
@@ -13550,17 +13559,18 @@ __metadata:
     "@backstage/plugin-catalog-backend": "npm:^3.9.0"
     "@backstage/plugin-catalog-backend-module-logs": "npm:^0.1.25"
     "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "npm:^0.2.23"
+    "@backstage/plugin-catalog-common": "npm:^1.1.10"
     "@backstage/plugin-kubernetes-backend": "npm:^0.21.7"
     "@backstage/plugin-mcp-actions-backend": "npm:^0.2.1"
     "@backstage/plugin-notifications-backend": "npm:^0.6.8"
     "@backstage/plugin-permission-backend": "npm:^0.7.15"
-    "@backstage/plugin-permission-backend-module-allow-all-policy": "npm:^0.2.22"
     "@backstage/plugin-permission-common": "npm:^0.9.10"
     "@backstage/plugin-permission-node": "npm:^0.11.3"
     "@backstage/plugin-proxy-backend": "npm:^0.6.16"
     "@backstage/plugin-scaffolder-backend": "npm:^4.0.3"
     "@backstage/plugin-scaffolder-backend-module-github": "npm:^0.9.12"
     "@backstage/plugin-scaffolder-backend-module-notifications": "npm:^0.1.25"
+    "@backstage/plugin-scaffolder-common": "npm:2.0.1"
     "@backstage/plugin-search-backend": "npm:^2.1.5"
     "@backstage/plugin-search-backend-module-catalog": "npm:^0.3.18"
     "@backstage/plugin-search-backend-module-pg": "npm:^0.5.58"
@@ -21558,6 +21568,13 @@ __metadata:
   version: 8.0.2
   resolution: "json-schema-typed@npm:8.0.2"
   checksum: 10c0/89f5e2fb1495483b705c027203c07277ee6bf2665165ad25a9cb55de5af7f72570326d13d32565180781e4083ad5c9688102f222baed7b353c2f39c1e02b0428
+  languageName: node
+  linkType: hard
+
+"json-schema@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "json-schema@npm:0.4.0"
+  checksum: 10c0/d4a637ec1d83544857c1c163232f3da46912e971d5bf054ba44fdb88f07d8d359a462b4aec46f2745efbc57053365608d88bc1d7b1729f7b4fc3369765639ed3
   languageName: node
   linkType: hard
 
