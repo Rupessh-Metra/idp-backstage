@@ -178,6 +178,12 @@ catalog:
     - type: url
       target: https://github.com/Rupessh-Metra/JavaWebCalculator/blob/master/catalog-info.yaml
 
+    # "Deploy to kind" template, runs the kubernetes:deploy scaffolder action
+    - type: file
+      target: ../../examples/templates/deploy-to-kind/template.yaml
+      rules:
+        - allow: [Template]
+
     ## Uncomment these lines to add more example data
     # - type: url
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
@@ -190,6 +196,12 @@ catalog:
 
 kubernetes:
   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+  serviceLocatorMethod:
+    type: multiTenant
+  # The cluster list itself comes from a custom KubernetesClustersSupplier
+  # (see packages/backend/src/kubernetes) that reads a kubeconfig file. Its
+  # path is set via kubernetes.kubeconfigPath in app-config.local.yaml (or
+  # the KUBECONFIG env var), since it's a local, machine-specific path.
 
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 permission:

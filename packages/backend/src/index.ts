@@ -8,6 +8,8 @@
 
 import { createBackend } from '@backstage/backend-defaults';
 import { permissionPolicyModule } from './permissions/permissionPolicyModule';
+import { kubeconfigClusterSupplierModule } from './kubernetes/kubeconfigClusterSupplierModule';
+import { kubernetesDeployActionModule } from './kubernetes/deployActionModule';
 
 const backend = createBackend();
 
@@ -20,6 +22,8 @@ backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
 backend.add(
   import('@backstage/plugin-scaffolder-backend-module-notifications'),
 );
+// Custom kubernetes:deploy action: see ./kubernetes/deployAction.ts
+backend.add(kubernetesDeployActionModule);
 
 // techdocs plugin
 backend.add(import('@backstage/plugin-techdocs-backend'));
@@ -59,6 +63,9 @@ backend.add(import('@backstage/plugin-search-backend-module-techdocs'));
 
 // kubernetes plugin
 backend.add(import('@backstage/plugin-kubernetes-backend'));
+// Custom cluster supplier that reads a token-based kubeconfig file:
+// see ./kubernetes/KubeconfigClustersSupplier.ts
+backend.add(kubeconfigClusterSupplierModule);
 
 // user settings plugin
 backend.add(import('@backstage/plugin-user-settings-backend'));
