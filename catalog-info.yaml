@@ -3,10 +3,9 @@ kind: Component
 metadata:
   name: idp
   description: An example of a Backstage application.
-  # Example for optional annotations
-  # annotations:
-  #   github.com/project-slug: backstage/backstage
-  #   backstage.io/techdocs-ref: dir:.
+  annotations:
+    github.com/project-slug: Rupessh-Metra/idp-backstage
+  # backstage.io/techdocs-ref: dir:.
 spec:
   type: website
   owner: john@example.com

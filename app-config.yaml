@@ -190,6 +190,11 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
+    # This app's own self-description, carries the github.com/project-slug
+    # annotation used by the GitHub Actions/Pull Requests/Insights entity tabs
+    - type: file
+      target: ../../catalog-info.yaml
+
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
@@ -203,6 +208,12 @@ catalog:
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml
+      rules:
+        - allow: [User, Group]
+
+    # GitHub sign-in user/group data
+    - type: file
+      target: ../../examples/github-org.yaml
       rules:
         - allow: [User, Group]
 
