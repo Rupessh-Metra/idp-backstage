@@ -4,6 +4,7 @@ import { SignInPageBlueprint } from '@backstage/plugin-app-react';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { SignInPage } from '@backstage/core-components';
 import catalogPlugin from '@backstage/plugin-catalog/alpha';
+import rbacPlugin from '@backstage-community/plugin-rbac';
 import { navModule } from './modules/nav';
 import { homeModule } from './modules/home';
 import { githubEntityPageModule } from './components/catalog/EntityPage';
@@ -36,6 +37,7 @@ const signInPageModule = createFrontendModule({
 export default createApp({
   features: [
     catalogPlugin,
+    rbacPlugin,
     navModule,
     homeModule,
     signInPageModule,

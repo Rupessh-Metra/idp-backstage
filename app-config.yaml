@@ -55,7 +55,7 @@ app:
               height: 5
 
 organization:
-  name: My Company
+  name: The Ksquare Group
 
 backend:
   # Used for enabling authentication, secret is shared by all backend plugins
@@ -184,6 +184,12 @@ catalog:
       rules:
         - allow: [Template]
 
+    # "Grant repo access" template, runs the github:repo:grant scaffolder action
+    - type: file
+      target: ../../examples/templates/grant-repo-access/template.yaml
+      rules:
+        - allow: [Template]
+
     ## Uncomment these lines to add more example data
     # - type: url
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
@@ -202,11 +208,51 @@ kubernetes:
   # (see packages/backend/src/kubernetes) that reads a kubeconfig file. Its
   # path is set via kubernetes.kubeconfigPath in app-config.local.yaml (or
   # the KUBECONFIG env var), since it's a local, machine-specific path.
+  #
+  # The kubernetes:deploy scaffolder action (see
+  # packages/backend/src/kubernetes/deployAction.ts) also expects, in
+  # app-config.local.yaml since it's a credential:
+  #   kubernetes:
+  #     dockerHub:
+  #       username: <docker hub username>
+  #       token: <docker hub access token>
+  #       imagePullSecret: <name of the imagePullSecret in the cluster>
 
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 permission:
   # setting this to `false` will disable permissions
   enabled: true
+  rbac:
+    admin:
+      # Full access regardless of any policy row - see also the
+      # role:default/platform-admins role in rbac/rbac-policy.csv, which
+      # grants the same access to the whole platform-admins group (not just
+      # this one account).
+      superUsers:
+        - name: user:default/rupessh-metra
+    # Resolved relative to the backend process's cwd (packages/backend), so
+    # this file lives at packages/backend/rbac/rbac-policy.csv.
+    policies-csv-file: ./rbac/rbac-policy.csv
+    policyFileReload: true
+    pluginsWithPermission:
+      - catalog
+      - scaffolder
+      - permission
+      - kubernetes
+    # Casbin/CSV has no "every user" wildcard subject, so the third tier
+    # from our previous custom policy ("any other authenticated user ->
+    # read-only") is expressed here instead: every authenticated user gets
+    # role:default/everyone in addition to whatever role(s) the CSV file
+    # grants them.
+    defaultPermissions:
+      defaultRole: role:default/everyone
+      basicPermissions:
+        - permission: catalog-entity
+          action: read
+        - permission: catalog.location.read
+          action: read
+        - permission: scaffolder-template
+          action: read
 
 # see https://backstage.io/docs/ai/mcp-actions for more details
 mcpActions:

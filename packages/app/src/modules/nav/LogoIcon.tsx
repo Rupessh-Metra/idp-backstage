@@ -1,27 +1,26 @@
+import ksquareLogo from '../../assets/ksquare-logo.png';
+
+// The logo artwork is navy-on-transparent, so it needs a light background to
+// stay legible on the (always dark) sidebar.
 export const LogoIcon = () => {
   return (
-    <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-      <circle cx="20" cy="20" r="19" fill="#0D0D0D" stroke="#8CC63F" strokeWidth="2" />
-      <circle
-        cx="20"
-        cy="20"
-        r="12"
-        fill="none"
-        stroke="#A2E037"
-        strokeWidth="2.5"
+    <div
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 6,
+        background: '#FFFFFF',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      <img
+        src={ksquareLogo}
+        alt="The Ksquare Group"
+        style={{ width: 22, height: 22, objectFit: 'contain' }}
       />
-      <text
-        x="20"
-        y="21"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontFamily="Arial, sans-serif"
-        fontWeight="bold"
-        fontSize="14"
-        fill="#A2E037"
-      >
-        K
-      </text>
-    </svg>
+    </div>
   );
 };

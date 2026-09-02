@@ -7,9 +7,9 @@
  */
 
 import { createBackend } from '@backstage/backend-defaults';
-import { permissionPolicyModule } from './permissions/permissionPolicyModule';
 import { kubeconfigClusterSupplierModule } from './kubernetes/kubeconfigClusterSupplierModule';
 import { kubernetesDeployActionModule } from './kubernetes/deployActionModule';
+import { githubRepoAccessActionsModule } from './github/repoAccessActionsModule';
 
 const backend = createBackend();
 
@@ -24,6 +24,9 @@ backend.add(
 );
 // Custom kubernetes:deploy action: see ./kubernetes/deployAction.ts
 backend.add(kubernetesDeployActionModule);
+// Custom github:repo:grant / github:repo:revoke actions:
+// see ./github/repoAccessActions.ts
+backend.add(githubRepoAccessActionsModule);
 
 // techdocs plugin
 backend.add(import('@backstage/plugin-techdocs-backend'));
@@ -47,8 +50,10 @@ backend.add(import('@backstage/plugin-catalog-backend-module-logs'));
 
 // permission plugin
 backend.add(import('@backstage/plugin-permission-backend'));
-// Custom RBAC policy: see ./permissions/customPermissionPolicy.ts
-backend.add(permissionPolicyModule);
+// Community RBAC plugin: roles and per-resource policies are UI/CSV managed
+// (see app-config.yaml's permission.rbac block and rbac/rbac-policy.csv),
+// replacing the previous custom PermissionPolicy.
+backend.add(import('@backstage-community/plugin-rbac-backend'));
 
 // search plugin
 backend.add(import('@backstage/plugin-search-backend'));

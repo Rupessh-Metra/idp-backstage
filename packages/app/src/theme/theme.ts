@@ -6,76 +6,84 @@ import {
   UnifiedTheme,
 } from '@backstage/theme';
 
-// Ben 10 / Omnitrix inspired palette: black/near-black chrome with a lime
-// green accent. The accent is used for buttons, links, and active states;
-// it is never used as body text on a light background (fails contrast).
+// The Ksquare Group palette: brand navy chrome with a blue accent. The
+// accent is used for links/highlights/active states; it switches shade
+// between light and dark mode so it always stays readable (WCAG AA):
+// the deeper accent blue reads fine on white, but is too dark to read on a
+// near-black surface, where the brighter blue is used instead.
 export const ksquareColors = {
-  accent: '#8CC63F',
-  accentBright: '#A2E037',
-  accentDark: '#6EA032',
-  black: '#0D0D0D',
-  blackAlt: '#141414',
-  blackElevated: '#1B1B1B',
+  navy: '#1C3A63',
+  navyElevated: '#25497E',
+  navyDeep: '#132A4A',
+  accentLight: '#2F6DB8',
+  accentDark: '#6BA3E0',
 };
 
-// A single, consistent black + lime-green page header is used everywhere,
+// A single, consistent navy -> blue page header is used everywhere,
 // regardless of entity type, so the whole portal reads as one branded
 // product rather than a grab-bag of default Backstage colors.
-const omnitrixPageTheme = genPageTheme({
-  colors: [ksquareColors.black, '#1F3D0F'],
+const ksquarePageTheme = genPageTheme({
+  colors: [ksquareColors.navy, ksquareColors.accentLight],
   shape: shapes.wave,
-  options: { fontColor: ksquareColors.accentBright },
+  options: { fontColor: '#FFFFFF' },
 });
 
 const pageThemeOverrides = {
-  home: omnitrixPageTheme,
-  documentation: omnitrixPageTheme,
-  tool: omnitrixPageTheme,
-  service: omnitrixPageTheme,
-  website: omnitrixPageTheme,
-  library: omnitrixPageTheme,
-  other: omnitrixPageTheme,
-  app: omnitrixPageTheme,
-  apis: omnitrixPageTheme,
-  card: omnitrixPageTheme,
+  home: ksquarePageTheme,
+  documentation: ksquarePageTheme,
+  tool: ksquarePageTheme,
+  service: ksquarePageTheme,
+  website: ksquarePageTheme,
+  library: ksquarePageTheme,
+  other: ksquarePageTheme,
+  app: ksquarePageTheme,
+  apis: ksquarePageTheme,
+  card: ksquarePageTheme,
+};
+
+// The sidebar is always navy (both modes) - it's the app's persistent brand
+// chrome. Its text/icons are always light, and its active-state accent is
+// always the brighter blue, since that surface is always dark regardless of
+// which content theme is active.
+const navigationPalette = {
+  background: ksquareColors.navy,
+  color: '#E8E8E8',
+  indicator: ksquareColors.accentDark,
+  selectedColor: ksquareColors.accentDark,
+  navItem: {
+    hoverBackground: ksquareColors.navyElevated,
+  },
+  submenu: {
+    background: ksquareColors.navyDeep,
+  },
 };
 
 export const ksquareLightTheme: UnifiedTheme = createUnifiedTheme({
   palette: {
     ...palettes.light,
     primary: {
-      main: ksquareColors.accent,
-      dark: ksquareColors.accentDark,
-      contrastText: ksquareColors.black,
+      main: ksquareColors.navy,
+      dark: ksquareColors.navyDeep,
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F7F8F5',
+      default: '#F5F7FA',
       paper: '#FFFFFF',
     },
-    // Reserve the bright green for accents/buttons/active states only - body
-    // links use a darker shade so they stay readable (WCAG AA) on white.
-    link: '#4C7A1F',
-    linkHover: '#3A5F17',
-    border: '#DCDCDC',
+    // Accent blue reads fine as link text on white (passes WCAG AA).
+    link: ksquareColors.accentLight,
+    linkHover: ksquareColors.navy,
+    border: '#DCE3EC',
     navigation: {
       ...palettes.light.navigation,
-      background: ksquareColors.black,
-      color: '#E8E8E8',
-      indicator: ksquareColors.accentBright,
-      selectedColor: ksquareColors.accentBright,
-      navItem: {
-        hoverBackground: ksquareColors.blackElevated,
-      },
-      submenu: {
-        background: ksquareColors.blackAlt,
-      },
+      ...navigationPalette,
     },
     pinSidebarButton: {
-      icon: ksquareColors.black,
-      background: ksquareColors.accent,
+      icon: ksquareColors.navy,
+      background: ksquareColors.accentDark,
     },
     tabbar: {
-      indicator: ksquareColors.accent,
+      indicator: ksquareColors.accentLight,
     },
   },
   defaultPageTheme: 'home',
@@ -86,37 +94,29 @@ export const ksquareDarkTheme: UnifiedTheme = createUnifiedTheme({
   palette: {
     ...palettes.dark,
     primary: {
-      main: ksquareColors.accent,
-      dark: ksquareColors.accentDark,
-      contrastText: ksquareColors.black,
+      main: ksquareColors.navy,
+      dark: ksquareColors.navyDeep,
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: ksquareColors.black,
-      paper: ksquareColors.blackAlt,
+      default: '#0B1220',
+      paper: '#121A2B',
     },
-    // On black, the bright accent reads fine as link text too.
-    link: ksquareColors.accentBright,
-    linkHover: ksquareColors.accent,
-    border: '#2A2A2A',
+    // The deep navy is too dark to read on a near-black surface, so dark
+    // mode uses the brighter accent blue for links instead.
+    link: ksquareColors.accentDark,
+    linkHover: ksquareColors.accentLight,
+    border: '#24344E',
     navigation: {
       ...palettes.dark.navigation,
-      background: ksquareColors.black,
-      color: '#E8E8E8',
-      indicator: ksquareColors.accentBright,
-      selectedColor: ksquareColors.accentBright,
-      navItem: {
-        hoverBackground: ksquareColors.blackElevated,
-      },
-      submenu: {
-        background: ksquareColors.blackAlt,
-      },
+      ...navigationPalette,
     },
     pinSidebarButton: {
-      icon: ksquareColors.black,
-      background: ksquareColors.accent,
+      icon: ksquareColors.navy,
+      background: ksquareColors.accentDark,
     },
     tabbar: {
-      indicator: ksquareColors.accent,
+      indicator: ksquareColors.accentDark,
     },
   },
   defaultPageTheme: 'home',

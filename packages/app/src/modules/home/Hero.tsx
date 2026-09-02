@@ -1,17 +1,17 @@
 export const Hero = () => (
   <div
     style={{
-      background: 'linear-gradient(120deg, #0D0D0D 0%, #1F3D0F 100%)',
+      background: 'linear-gradient(120deg, #1C3A63 0%, #2F6DB8 100%)',
       borderRadius: 4,
       padding: '32px 40px',
-      color: '#F5F5F5',
+      color: '#F5F7FA',
     }}
   >
     <div
       style={{
         fontSize: 28,
         fontWeight: 700,
-        color: '#A2E037',
+        color: '#FFFFFF',
         marginBottom: 8,
       }}
     >

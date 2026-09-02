@@ -3,8 +3,22 @@ import type { KubernetesObject } from '@kubernetes/client-node';
 import type { Config } from '@backstage/config';
 import { InputError } from '@backstage/errors';
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
+import { createTagResolver } from './registries';
 
 const FIELD_MANAGER = 'backstage-scaffolder';
+const REGISTRY_PROVIDER = 'dockerHub';
+
+// Kubernetes Service names must satisfy DNS-1035: lowercase alphanumerics
+// and '-' only, and must start with a letter. Deployment/label/selector
+// names are kept identical to the Service name so they all refer to the
+// same object consistently.
+export function normalizeResourceName(name: string): string {
+  const normalized = name
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+$/, '');
+  return /^[a-z]/.test(normalized) ? normalized : `app-${normalized}`;
+}
 
 type DeployInput = {
   name: string;
@@ -12,6 +26,7 @@ type DeployInput = {
   replicas: number;
   namespace: string;
   containerPort: number;
+  imagePullSecret: string;
 };
 
 function buildDeployment(input: DeployInput): KubernetesObject {
@@ -34,6 +49,7 @@ function buildDeployment(input: DeployInput): KubernetesObject {
           },
         },
         spec: {
+          imagePullSecrets: [{ name: input.imagePullSecret }],
           containers: [
             {
               name: input.name,
@@ -70,10 +86,12 @@ function buildService(input: DeployInput): KubernetesObject {
 }
 
 export function createKubernetesDeployAction(config: Config) {
+  const resolveLatestTag = createTagResolver(config);
+
   return createTemplateAction({
     id: 'kubernetes:deploy',
     description:
-      'Deploys a container image to Kubernetes as a Deployment and a matching ClusterIP Service',
+      'Deploys a private Docker Hub image to Kubernetes as a Deployment and a matching ClusterIP Service',
     schema: {
       input: {
         name: z =>
@@ -82,7 +100,19 @@ export function createKubernetesDeployAction(config: Config) {
             .describe(
               'Name of the Deployment/Service; also set as the backstage.io/kubernetes-id label',
             ),
-        image: z => z.string().describe('Container image to deploy'),
+        repo: z =>
+          z
+            .string()
+            .describe(
+              'Docker Hub repository in "namespace/repo" form, e.g. rupessh/web-calci',
+            ),
+        tag: z =>
+          z
+            .string()
+            .optional()
+            .describe(
+              'Explicit tag to deploy. If omitted, the most recently pushed tag is used',
+            ),
         replicas: z =>
           z.number().default(1).describe('Number of pod replicas'),
         namespace: z =>
@@ -93,16 +123,27 @@ export function createKubernetesDeployAction(config: Config) {
       output: {
         name: z => z.string(),
         namespace: z => z.string(),
+        image: z => z.string(),
       },
     },
     async handler(ctx) {
       const {
         name,
-        image,
-        replicas = 1,
+        repo,
+        tag: explicitTag,
+        replicas: requestedReplicas = 1,
         namespace = 'default',
         containerPort = 80,
       } = ctx.input;
+
+      const replicas = Math.max(1, requestedReplicas);
+
+      const normalizedName = normalizeResourceName(name);
+      if (normalizedName !== name) {
+        ctx.logger.info(
+          `'${name}' is not a valid Kubernetes resource name; using '${normalizedName}' for the Deployment, Service, and backstage.io/kubernetes-id label instead`,
+        );
+      }
 
       const kubeconfigPath = config.getOptionalString(
         'kubernetes.deployKubeconfigPath',
@@ -113,21 +154,31 @@ export function createKubernetesDeployAction(config: Config) {
         );
       }
 
+      const imagePullSecret = config.getString(
+        'kubernetes.dockerHub.imagePullSecret',
+      );
+
+      const tag =
+        explicitTag ?? (await resolveLatestTag(REGISTRY_PROVIDER, repo));
+      const image = `docker.io/${repo}:${tag}`;
+      ctx.logger.info(`Resolved image to deploy: ${image}`);
+
       const kubeConfig = new KubeConfig();
       kubeConfig.loadFromFile(kubeconfigPath);
       const client = KubernetesObjectApi.makeApiClient(kubeConfig);
 
       const input: DeployInput = {
-        name,
+        name: normalizedName,
         image,
         replicas,
         namespace,
         containerPort,
+        imagePullSecret,
       };
 
       for (const manifest of [buildDeployment(input), buildService(input)]) {
         ctx.logger.info(
-          `Applying ${manifest.kind} ${namespace}/${name} to cluster`,
+          `Applying ${manifest.kind} ${namespace}/${normalizedName} to cluster`,
         );
         await client.patch(
           manifest,
@@ -139,8 +190,9 @@ export function createKubernetesDeployAction(config: Config) {
         );
       }
 
-      ctx.output('name', name);
+      ctx.output('name', normalizedName);
       ctx.output('namespace', namespace);
+      ctx.output('image', image);
     },
   });
 }

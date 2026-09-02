@@ -13,6 +13,23 @@ import SearchIcon from '@material-ui/icons/Search';
 import { SidebarSearchModal } from '@backstage/plugin-search';
 import { UserSettingsSignInAvatar } from '@backstage/plugin-user-settings';
 import { NotificationsSidebarItem } from '@backstage/plugin-notifications';
+import { usePermission } from '@backstage/plugin-permission-react';
+import { policyEntityReadPermission } from '@backstage-community/plugin-rbac-common';
+import type { ReactNode } from 'react';
+
+// Only renders its children once the signed-in user is allowed to read RBAC
+// policies - i.e. RBAC superusers, or anyone else granted that permission -
+// so the nav item doesn't show up for users who couldn't open the page anyway.
+function RbacNavItem({ children }: { children: ReactNode }) {
+  const { loading, allowed } = usePermission({
+    permission: policyEntityReadPermission,
+    resourceRef: undefined,
+  });
+  if (loading || !allowed) {
+    return null;
+  }
+  return <>{children}</>;
+}
 
 export const SidebarContent = NavContentBlueprint.make({
   params: {
@@ -24,6 +41,7 @@ export const SidebarContent = NavContentBlueprint.make({
       // Skipped items
       nav.take('page:search'); // Using search modal instead
       nav.take('page:notifications'); // Using NotificationsSidebarItem manually instead
+      const rbacNavItem = nav.take('page:rbac');
 
       return (
         <Sidebar>
@@ -50,6 +68,7 @@ export const SidebarContent = NavContentBlueprint.make({
             icon={<UserSettingsSignInAvatar />}
             to="/settings"
           >
+            <RbacNavItem>{rbacNavItem}</RbacNavItem>
             {nav.take('page:app-visualizer')}
             {nav.take('page:user-settings')}
           </SidebarGroup>

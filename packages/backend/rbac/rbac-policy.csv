@@ -1,0 +1,54 @@
+# RBAC policy seed. Format: https://casbin.org/docs/category/the-basics
+#   p, <role>, <permission-name-or-resource-type>, <action>, <allow|deny>
+#   g, <user-or-group-ref>, <role>
+#
+# The permission names/resource types below are the real ones exported by
+# @backstage/plugin-catalog-common, @backstage/plugin-scaffolder-common,
+# @backstage/plugin-kubernetes-common, and @backstage-community/plugin-rbac-common
+# for the plugins listed in permission.rbac.pluginsWithPermission.
+#
+# The third tier from our previous custom policy ("any other authenticated
+# user -> read-only") isn't expressible here (no "every user" subject in
+# Casbin) - it's configured instead via permission.rbac.defaultPermissions
+# in app-config.yaml.
+
+# --- role:default/platform-admins: allow everything ---
+p, role:default/platform-admins, catalog-entity, read, allow
+p, role:default/platform-admins, catalog-entity, delete, allow
+p, role:default/platform-admins, catalog-entity, update, allow
+p, role:default/platform-admins, catalog.entity.create, create, allow
+p, role:default/platform-admins, catalog.entity.validate, use, allow
+p, role:default/platform-admins, catalog.location.analyze, use, allow
+p, role:default/platform-admins, catalog.location.create, create, allow
+p, role:default/platform-admins, catalog.location.delete, delete, allow
+p, role:default/platform-admins, catalog.location.read, read, allow
+p, role:default/platform-admins, scaffolder-action, use, allow
+p, role:default/platform-admins, scaffolder-task, read, allow
+p, role:default/platform-admins, scaffolder-task, use, allow
+p, role:default/platform-admins, scaffolder.task.create, create, allow
+p, role:default/platform-admins, scaffolder.template.management, use, allow
+p, role:default/platform-admins, scaffolder-template, read, allow
+p, role:default/platform-admins, policy-entity, read, allow
+p, role:default/platform-admins, policy-entity, delete, allow
+p, role:default/platform-admins, policy-entity, update, allow
+p, role:default/platform-admins, policy.entity.create, create, allow
+p, role:default/platform-admins, kubernetes.clusters.read, read, allow
+p, role:default/platform-admins, kubernetes.proxy, use, allow
+p, role:default/platform-admins, kubernetes.resources.read, read, allow
+
+g, group:default/platform-admins, role:default/platform-admins
+
+# --- role:default/developers: read catalog, read/use scaffolder, create ---
+# (register/create components; no delete; no RBAC/permission admin access)
+p, role:default/developers, catalog-entity, read, allow
+p, role:default/developers, catalog.location.read, read, allow
+p, role:default/developers, catalog.entity.create, create, allow
+p, role:default/developers, catalog.location.create, create, allow
+p, role:default/developers, catalog.location.analyze, use, allow
+p, role:default/developers, scaffolder-template, read, allow
+p, role:default/developers, scaffolder-action, use, allow
+p, role:default/developers, scaffolder.task.create, create, allow
+p, role:default/developers, scaffolder-task, read, allow
+p, role:default/developers, scaffolder-task, use, allow
+
+g, group:default/developers, role:default/developers

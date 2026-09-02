@@ -1,0 +1,67 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
+kind: Template
+metadata:
+  name: grant-repo-access
+  title: Grant repo access
+  description: >-
+    Grants a GitHub user collaborator access to one of our repositories.
+    Who can run this template is governed by the RBAC plugin's scaffolder
+    permissions, not by anything in this file.
+spec:
+  owner: group:default/platform-admins
+  type: service
+
+  parameters:
+    - title: Who gets access to what
+      required:
+        - repo
+        - username
+        - permission
+      properties:
+        repo:
+          title: Repository
+          type: string
+          description: >-
+            GitHub repository in "owner/name" form, e.g.
+            Rupessh-Metra/JavaWebCalculator
+          ui:autofocus: true
+        username:
+          title: GitHub username
+          type: string
+          description: The GitHub account to grant access to
+        permission:
+          title: Permission level
+          type: string
+          description: Collaborator permission level to grant
+          default: push
+          enum:
+            - pull
+            - triage
+            - push
+            - maintain
+            - admin
+          enumNames:
+            - 'Pull (read-only)'
+            - 'Triage (read, plus manage issues/PRs)'
+            - 'Push (read and write)'
+            - 'Maintain (push, plus manage some repo settings)'
+            - 'Admin (full control, including destructive actions)'
+
+  steps:
+    - id: grant
+      name: Grant Access
+      action: github:repo:grant
+      input:
+        repo: ${{ parameters.repo }}
+        username: ${{ parameters.username }}
+        permission: ${{ parameters.permission }}
+
+  output:
+    text:
+      - title: Access granted
+        content: |
+          Granted **${{ parameters.username }}** `${{ parameters.permission }}`
+          access to **${{ parameters.repo }}**. If they weren't already able to
+          access the repo, GitHub has sent them a pending invitation - check
+          the task log above for the invitation link.
