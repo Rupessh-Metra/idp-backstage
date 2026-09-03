@@ -1,8 +1,6 @@
-site_name: 'Ksquare IDP'
-site_description: 'Documentation for the Ksquare IDP Backstage app'
-
+site_name: Ksquare IDP
+site_description: Documentation for the Ksquare IDP Backstage app
 nav:
   - Introduction: index.md
-
 plugins:
   - techdocs-core
