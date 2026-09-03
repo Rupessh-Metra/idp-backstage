@@ -10,6 +10,7 @@ import { createBackend } from '@backstage/backend-defaults';
 import { kubeconfigClusterSupplierModule } from './kubernetes/kubeconfigClusterSupplierModule';
 import { kubernetesDeployActionModule } from './kubernetes/deployActionModule';
 import { githubRepoAccessActionsModule } from './github/repoAccessActionsModule';
+import { catalogUserOnboardActionModule } from './catalog/onboardUserActionModule';
 
 const backend = createBackend();
 
@@ -27,6 +28,8 @@ backend.add(kubernetesDeployActionModule);
 // Custom github:repo:grant / github:repo:revoke actions:
 // see ./github/repoAccessActions.ts
 backend.add(githubRepoAccessActionsModule);
+// Custom catalog:user:onboard action: see ./catalog/onboardUserAction.ts
+backend.add(catalogUserOnboardActionModule);
 
 // techdocs plugin
 backend.add(import('@backstage/plugin-techdocs-backend'));

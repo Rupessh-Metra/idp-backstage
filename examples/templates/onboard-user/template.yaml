@@ -1,0 +1,76 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
+kind: Template
+metadata:
+  name: onboard-user
+  title: Onboard teammate
+  description: >-
+    Adds a login-able User entity to catalog/users.yaml (the single source
+    of truth for GitHub sign-in) via a pull request. Restricted to
+    platform-admins - see the catalog:user:onboard step and
+    rbac/rbac-policy.csv.
+spec:
+  owner: group:default/platform-admins
+  type: service
+
+  parameters:
+    - title: Who to onboard
+      required:
+        - github_username
+        - group
+      properties:
+        github_username:
+          title: GitHub username
+          type: string
+          description: >-
+            The teammate's GitHub username, lowercase (must match their
+            GitHub sign-in exactly).
+          pattern: '^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$'
+          ui:autofocus: true
+        group:
+          title: Group
+          type: string
+          description: Group the new user should belong to
+          default: developers
+          enum:
+            - developers
+            - platform-admins
+          enumNames:
+            - 'Developers'
+            - 'Platform admins'
+
+  steps:
+    - id: stage-user
+      name: Stage new user entity
+      action: catalog:user:onboard
+      input:
+        githubUsername: ${{ parameters.github_username }}
+        group: ${{ parameters.group }}
+
+    - id: open-pr
+      name: Open pull request
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?repo=idp-backstage&owner=Rupessh-Metra
+        branchName: onboard-${{ parameters.github_username }}
+        title: Onboard ${{ parameters.github_username }}
+        description: >-
+          Adds **${{ parameters.github_username }}** to
+          `catalog/users.yaml` as a member of **${{ parameters.group }}**,
+          via the "Onboard teammate" template. Merging this lets them sign
+          in with GitHub.
+        commitMessage: 'catalog: onboard ${{ parameters.github_username }}'
+
+  output:
+    links:
+      - title: View pull request
+        url: ${{ steps['open-pr'].output.remoteUrl }}
+    text:
+      - title: Next steps
+        content: |
+          Pull request opened for **${{ parameters.github_username }}**
+          (`${{ parameters.group }}`). Once it's reviewed and **merged**,
+          they'll be able to sign in with their GitHub account - the
+          catalog picks up the merged `catalog/users.yaml` on its next
+          refresh (a few minutes, or trigger a manual refresh from the
+          `idp` component's catalog-info.yaml page).

@@ -1,13 +1,17 @@
 ---
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-user
+#
+# Single source of truth for login-able users and their group membership
+# (drives RBAC - see packages/backend/rbac/rbac-policy.csv). New teammates
+# are appended here by the "Onboard teammate" scaffolder template
+# (examples/templates/onboard-user) via a pull request - avoid hand-editing
+# unless you're fixing something the template got wrong.
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: rupessh-metra
 spec:
-  # Group membership drives RBAC (see packages/backend/src/permissions) -
-  # change this list to test other roles. See the test plan for details.
-  memberOf: [platform-admins]
+  memberOf: [developers, platform-admins]
 ---
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-group
 apiVersion: backstage.io/v1alpha1

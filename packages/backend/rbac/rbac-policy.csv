@@ -35,6 +35,13 @@ p, role:default/platform-admins, policy.entity.create, create, allow
 p, role:default/platform-admins, kubernetes.clusters.read, read, allow
 p, role:default/platform-admins, kubernetes.proxy, use, allow
 p, role:default/platform-admins, kubernetes.resources.read, read, allow
+# Custom permission checked directly inside the catalog:user:onboard
+# scaffolder action's handler (see packages/backend/src/catalog/permissions.ts) -
+# there's no built-in resource-typed permission granular enough to gate one
+# specific action, so this is app-defined and deliberately NOT granted to
+# role:default/developers (implicit deny), gating "Onboard teammate" to
+# platform-admins only.
+p, role:default/platform-admins, catalog.user.onboard, create, allow
 
 g, group:default/platform-admins, role:default/platform-admins
 

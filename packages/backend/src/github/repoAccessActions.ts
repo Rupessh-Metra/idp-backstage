@@ -1,11 +1,7 @@
-import { Octokit } from '@octokit/rest';
 import type { Config } from '@backstage/config';
-import {
-  DefaultGithubCredentialsProvider,
-  ScmIntegrations,
-} from '@backstage/integration';
 import { InputError } from '@backstage/errors';
 import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
+import { createOctokitForRepo } from './octokit';
 
 // TODO: Org-level access is intentionally NOT implemented here:
 //  - Inviting a user to the GitHub *organization* itself
@@ -22,33 +18,6 @@ function parseRepo(repo: string): { owner: string; name: string } {
     throw new InputError(`repo must be in "owner/name" form, got '${repo}'`);
   }
   return { owner, name };
-}
-
-async function createOctokitForRepo(
-  config: Config,
-  repo: string,
-): Promise<Octokit> {
-  const integrations = ScmIntegrations.fromConfig(config);
-  const credentialsProvider =
-    DefaultGithubCredentialsProvider.fromIntegrations(integrations);
-  const url = `https://github.com/${repo}`;
-
-  const integration = integrations.github.byUrl(url);
-  if (!integration) {
-    throw new InputError(
-      `No GitHub integration configured that covers '${repo}'`,
-    );
-  }
-
-  const { token } = await credentialsProvider.getCredentials({ url });
-  if (!token) {
-    throw new InputError(`No GitHub credentials available for '${repo}'`);
-  }
-
-  return new Octokit({
-    auth: token,
-    baseUrl: integration.config.apiBaseUrl,
-  });
 }
 
 export function createGithubRepoGrantAction(config: Config) {

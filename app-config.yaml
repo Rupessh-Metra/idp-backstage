@@ -165,9 +165,12 @@ catalog:
       rules:
         - allow: [User, Group]
 
-    # GitHub sign-in user/group data
-    - type: file
-      target: ../../examples/github-org.yaml
+    # GitHub sign-in user/group data. Single source of truth for login-able
+    # users - the baked-in examples/github-org.yaml has been removed. New
+    # users are appended here via a pull request by the "Onboard teammate"
+    # template (examples/templates/onboard-user), not by hand-editing.
+    - type: url
+      target: https://github.com/Rupessh-Metra/idp-backstage/blob/main/catalog/users.yaml
       rules:
         - allow: [User, Group]
 
@@ -187,6 +190,13 @@ catalog:
     # "Grant repo access" template, runs the github:repo:grant scaffolder action
     - type: file
       target: ../../examples/templates/grant-repo-access/template.yaml
+      rules:
+        - allow: [Template]
+
+    # "Onboard teammate" template, runs the catalog:user:onboard scaffolder
+    # action (platform-admins only - see rbac/rbac-policy.csv)
+    - type: file
+      target: ../../examples/templates/onboard-user/template.yaml
       rules:
         - allow: [Template]
 
