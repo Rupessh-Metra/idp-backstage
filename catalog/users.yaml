@@ -30,3 +30,10 @@ metadata:
 spec:
   type: team
   children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: suprajagoli9-a11y
+spec:
+  memberOf: [developers]
