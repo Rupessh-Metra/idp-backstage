@@ -30,6 +30,9 @@ node_modules/
 .env
 .env.test
 
+# Production deploy secrets (kubeconfigs mounted into the container)
+deploy/secrets/
+
 # Build output
 dist
 dist-types

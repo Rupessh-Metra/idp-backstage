@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backstage:
+    image: ravinadh/ksquare-idp:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - '7007:7007'
+    volumes:
+      # KUBECONFIG_PATH / DEPLOY_KUBECONFIG_PATH in .env must equal these
+      # in-container paths - see app-config.production.yaml.
+      - ./secrets/kubeconfig.yaml:/app/kubeconfig.yaml:ro
+      - ./secrets/deploy-kubeconfig.yaml:/app/deploy-kubeconfig.yaml:ro
+      # Uncomment to let the container's `techdocs.generator.runIn: docker`
+      # shell out to the host's Docker daemon (also requires installing the
+      # docker CLI in packages/backend/Dockerfile - not done yet, see the
+      # README note on TechDocs in production).
+      # - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  pgdata:

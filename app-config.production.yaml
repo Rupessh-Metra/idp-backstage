@@ -1,19 +1,24 @@
+# Production overrides, layered on top of app-config.yaml. All secrets and
+# environment-specific values come from environment variables - see
+# deploy/.env.example for the full list this file (plus the base config)
+# requires.
 app:
-  # Should be the same as backend.baseUrl when using the `app-backend` plugin.
-  baseUrl: http://localhost:7007
+  baseUrl: ${APP_BASE_URL}
 
 backend:
-  # Note that the baseUrl should be the URL that the browser and other clients
-  # should use when communicating with the backend, i.e. it needs to be
-  # reachable not just from within the backend host, but from all of your
-  # callers. When its value is "http://localhost:7007", it's strictly private
-  # and can't be reached by others.
-  baseUrl: http://localhost:7007
-  # The listener can also be expressed as a single <host>:<port> string. In this case we bind to
-  # all interfaces, the most permissive setting. The right value depends on your specific deployment.
-  listen: ':7007'
-
-  # config options: https://node-postgres.com/apis/client
+  baseUrl: ${APP_BASE_URL}
+  listen:
+    host: 0.0.0.0
+    port: 7007
+  cors:
+    origin: ${APP_BASE_URL}
+  # Serving over plain HTTP for now - the default CSP's
+  # upgrade-insecure-requests directive makes browsers force every request
+  # (including the initial page load) to https, which fails as
+  # ERR_SSL_PROTOCOL_ERROR with no TLS listener. Revert this once the
+  # server terminates TLS.
+  csp:
+    upgrade-insecure-requests: false
   database:
     client: pg
     connection:
@@ -21,35 +26,89 @@ backend:
       port: ${POSTGRES_PORT}
       user: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
-      # https://node-postgres.com/features/ssl
-      # you can set the sslmode configuration option via the `PGSSLMODE` environment variable
-      # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
-      # ssl:
-      #   ca: # if you have a CA file and want to verify it you can uncomment this section
-      #     $file: <file-path>/ca/server.crt
+
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN}
 
 auth:
+  environment: production
   providers:
-    guest: {}
+    github:
+      production:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        # Same resolver as development (app-config.local.yaml) - GitHub
+        # username must match a User entity name in the catalog.
+        signIn:
+          resolvers:
+            - resolver: usernameMatchingUserEntityName
+
+# techdocs: intentionally left as configured in app-config.yaml for now
+# (local publisher, docker generator). Note that generator.runIn: 'docker'
+# needs the Docker CLI + a mounted /var/run/docker.sock in this container to
+# actually work - see the note in deploy/docker-compose.yml.
+
+kubernetes:
+  # Paths are read from inside the container - mount the real files at
+  # these exact paths (see deploy/docker-compose.yml).
+  kubeconfigPath: ${KUBECONFIG_PATH}
+  deployKubeconfigPath: ${DEPLOY_KUBECONFIG_PATH}
+  dockerHub:
+    username: ${DOCKERHUB_USERNAME}
+    token: ${DOCKERHUB_TOKEN}
+    imagePullSecret: ${DOCKERHUB_IMAGE_PULL_SECRET}
+
+permission:
+  rbac:
+    # app-config.yaml's path is relative to the backend process's cwd, which
+    # is `packages/backend` in local dev but `/app` (the Dockerfile's
+    # WORKDIR) in this image - see the matching COPY in
+    # packages/backend/Dockerfile.
+    policies-csv-file: ./packages/backend/rbac/rbac-policy.csv
 
 catalog:
-  # Overrides the default list locations from app-config.yaml as these contain example data.
-  # See https://backstage.io/docs/features/software-catalog/#adding-components-to-the-catalog for more details
-  # on how to get entities into the catalog.
+  # app-config.yaml's `file` locations are also relative to the backend
+  # process's cwd (`../../examples/...`, meant to reach the repo root from
+  # `packages/backend`). In this image cwd is `/app`, which already *is*
+  # the repo root layout (see the `examples` COPY in
+  # packages/backend/Dockerfile), so the same locations need re-declaring
+  # here without the `../../`. Config arrays replace rather than merge, so
+  # the whole list - including the unchanged `url` entries - is repeated.
+  # Without this, the GitHub sign-in resolver has no User/Group entities to
+  # match against (github-org.yaml) and the deploy-to-kind /
+  # grant-repo-access templates never get registered.
   locations:
-    # Local example data, replace this with your production config, these are intended for demo use only.
-    # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
     - type: file
       target: ./examples/entities.yaml
 
-    # Local example template
     - type: file
       target: ./examples/template/template.yaml
       rules:
         - allow: [Template]
 
-    # Local example organizational data
     - type: file
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+
+    - type: file
+      target: ./examples/github-org.yaml
+      rules:
+        - allow: [User, Group]
+
+    - type: url
+      target: https://github.com/Rupessh-Metra/idp-backstage/blob/main/catalog-info.yaml
+    - type: url
+      target: https://github.com/Rupessh-Metra/JavaWebCalculator/blob/master/catalog-info.yaml
+
+    - type: file
+      target: ./examples/templates/deploy-to-kind/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ./examples/templates/grant-repo-access/template.yaml
+      rules:
+        - allow: [Template]
